@@ -80,6 +80,21 @@ std::string filesystemImpl::getDefaultGameRoot() {
     }
 }
 
+/* macOS gives out file names in NFD (decomposed); games name their files in
+ * NFC. Done with Foundation instead of iconv: the iconv in static builds has
+ * no "utf-8-mac". Leaves the string unchanged if it isn't valid UTF-8 or the
+ * NFC form wouldn't fit the 512-byte buffer. */
+void filesystemImpl::toNFC(char *inout) {
+    @autoreleasepool {
+        NSString *str = [NSString stringWithUTF8String:inout];
+        if (str == nil)
+            return;
+        const char *nfc = str.precomposedStringWithCanonicalMapping.UTF8String;
+        if (nfc && strlen(nfc) < 512)
+            strcpy(inout, nfc);
+    }
+}
+
 std::string filesystemImpl::selectPath(SDL_Window *win, const char *msg, const char *prompt) {
     @autoreleasepool {
         NSOpenPanel *panel = [NSOpenPanel openPanel];

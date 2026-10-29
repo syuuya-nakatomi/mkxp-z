@@ -26,6 +26,9 @@ std::string getDefaultGameRoot();
 
 #ifdef __APPLE__
 std::string selectPath(SDL_Window *win, const char *msg, const char *prompt);
+
+/* Converts a UTF-8 path in a 512-byte buffer to NFC in place. */
+void toNFC(char *inout);
 #endif
 
 };
